@@ -80,6 +80,12 @@ jobs:
           max_tokens: 10000
           # REASONING_EFFORT: low # optional; only for reasoning models (e.g. gpt-5.4, gpt-5.5), values (model support varies): none, minimal, low, medium, high, xhigh
           MAX_PATCH_LENGTH: 10000 # if the patch/diff length is large than MAX_PATCH_LENGTH, will be ignored and won't review. By default, with no MAX_PATCH_LENGTH set, there is also no limit for the patch/diff length.
+          # Fork addition: extra HTTP headers for OpenAI-compatible
+          # gateways that require them (e.g. OpenCode Go mandates
+          # `x-opencode-session` for routing). Either a JSON object:
+          OPENAI_EXTRA_HEADERS: '{"x-opencode-session": "ticketapp-pr-42"}'
+          # ...or the shorthand below (used when the header is absent):
+          OPENCODE_SESSION: ticketapp-pr-42
           IGNORE_PATTERNS: /node_modules/**/*,*.md # glob pattern or regex pattern to ignore files, separated by comma
           INCLUDE_PATTERNS: *.js,*.ts # glob pattern or regex pattern to include files, separated by comma
 ```

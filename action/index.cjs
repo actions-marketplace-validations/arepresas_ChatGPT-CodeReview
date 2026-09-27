@@ -147364,6 +147364,32 @@ exports.Chat = void 0;
 const openai_1 = __nccwpck_require__(60047);
 const reasoningEfforts = ['none', 'minimal', 'low', 'medium', 'high', 'xhigh'];
 const isReasoningEffort = (effort) => reasoningEfforts.includes(effort);
+/**
+ * Extra HTTP headers for OpenAI-compatible gateways that require
+ * them. `OPENAI_EXTRA_HEADERS` takes a JSON object, e.g.
+ * '{"x-opencode-session": "my-session"}'.
+ *
+ * Shorthand: `OPENCODE_SESSION`, when set and not already present
+ * in `OPENAI_EXTRA_HEADERS`, is sent as `x-opencode-session`
+ * (mandated by OpenCode Go for request routing).
+ */
+function extraHeaders() {
+    const headers = {};
+    const raw = process.env.OPENAI_EXTRA_HEADERS;
+    if (raw) {
+        try {
+            Object.assign(headers, JSON.parse(raw));
+        }
+        catch {
+            console.warn('OPENAI_EXTRA_HEADERS is not valid JSON, ignoring');
+        }
+    }
+    const session = process.env.OPENCODE_SESSION;
+    if (session && !headers['x-opencode-session']) {
+        headers['x-opencode-session'] = session;
+    }
+    return headers;
+}
 class Chat {
     openai;
     isAzure;
@@ -147380,6 +147406,7 @@ class Chat {
                 endpoint: process.env.OPENAI_API_ENDPOINT || '',
                 apiVersion: process.env.AZURE_API_VERSION || '',
                 deployment: process.env.AZURE_DEPLOYMENT || '',
+                defaultHeaders: extraHeaders(),
             });
         }
         else {
@@ -147387,6 +147414,7 @@ class Chat {
             this.openai = new openai_1.OpenAI({
                 apiKey: apikey,
                 baseURL: this.isGithubModels ? 'https://models.github.ai/inference' : process.env.OPENAI_API_ENDPOINT || 'https://api.openai.com/v1',
+                defaultHeaders: extraHeaders(),
             });
         }
     }
